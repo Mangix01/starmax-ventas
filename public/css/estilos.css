@@ -1,0 +1,32 @@
+<style type="text/css">
+  .modal-header.colorNoBorrar {
+    color: #fff;
+    background-color: orange;
+    border-color: #337ab7;
+  }
+  .modal-header.colorCreate {
+    color: #fff;
+    background-color: green;
+    border-color: #337ab7;
+  }
+  .modal-header.colorEdit {
+    color: #fff;
+    background-color: orange;
+    border-color: #337ab7;
+  }
+  .modal-header.colorShow {
+    color: #fff;
+    background-color: #14a5b0 ;
+    border-color: #337ab7;
+  }
+  .modal-header.colorModal {
+    color: #fff;
+    background-color: red;
+    border-color: #337ab7;
+  }
+  .main-header.colorEdit {
+    color: #fff;
+    background-color: green;
+    border-color: #337ab7;
+  }
+</style>

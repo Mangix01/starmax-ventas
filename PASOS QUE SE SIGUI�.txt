@@ -1,0 +1,40 @@
+1. laravel new proy
+2. cd proy
+3. composer require laravel/jetstream
+4. php artisan jetstream:install livewire
+5. npm install
+6. npm run build
+7. php artisan migrate
+
+8. Se coloco lo de laravel/permission de spatie.
+	8.1 El cambio que antes se hacía en kernel.php se hizo en boostrap\app.php
+	->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class
+              ]);
+    	})
+	8.2 El cambio que antes hacía a AuthServiceProvider.php lo hice en App\ServicProvider.php
+		use Illuminate\Support\Facades\Gate;  // arriba
+		En boot:
+		 Gate::before(function ($user, $ability) {
+           		 return $user->hasRole('Admin') ? true : null;
+        	});
+9. composer require yoeunes/toastr
+10. Se configuró America/Lima en .env
+11. composer require barryvdh/laravel-dompdf
+12. Se activo en config/jetstream Features::profilePhotos(),
+13. Se cambió de APP_URL=http://localhost a APP_URL=http://localhost:8000 en .env para que se vea foto de jetstream
+
+14. Copie mantenimiento de users.
+15. Copie mantenimiento de roles.
+16. Copie mantenimiento de permisos.
+17. Se hizo ajuste los controladores de users/roles/permisos en middleware, ha cambiado para la version laravel 11
+
+18. He copiado appAdminLte3.css y appAdminLte3.js a resource\css\app.css y resource\js\app.js respectivamente, conservando sus valores anterioes, que son unas pocas lineas.
+
+19. Se ha copiado el directorio lang, y configurado en config\app el lenguaje.
+
+20. He copiado el directorio de resources\view\errors y public\img\404 y 403
+
