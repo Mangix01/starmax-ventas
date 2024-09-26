@@ -1,7 +1,7 @@
 <x-app-layout>
 
 <div class="container-lg">
-	@if ($errors->any())
+	@if ($errors->any()) <!-- Instruccion de blade para mostrar todos los erroes de validadcion al usuario -->
 		<div class="alert alert-danger">
 			<ul>
 			@foreach ($errors->all() as $error)
@@ -24,7 +24,7 @@
 				        </div>
 				    </div>
 				</div>
-				@can('create ventas')
+				@can('create ventas') <!-- Instruccion de blade para verificar los permisos del usuario -->
 				<div class="col-sm-1">
 					<div class="text-right">
 						<a href="ventas/create" title="Registrar Ventas"><button class="btn btn-success shadow"><i class="fa fa-plus"></i></button></a>

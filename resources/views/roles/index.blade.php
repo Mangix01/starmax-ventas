@@ -35,8 +35,8 @@
 							
 							<th>Rol</th>
 							<!-- <th>Aplicación</th> -->
-							<th>Created At</th>
-							<th>Updated At</th>
+							<th>Fecha de creación</th>
+							<th>Fecha de actualización</th>
 							<th class="text-center">{{__('Opciones')}}</th>
 						</thead>
 		                @foreach ($roles as $role)

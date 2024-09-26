@@ -26,8 +26,6 @@ class Role_has_permission extends Model
         return $this->belongsTo(Role::class,'role_id');
     }
     
-
     protected $guarded =[
-
     ];
 }

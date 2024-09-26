@@ -10,6 +10,7 @@ class Persona extends Model
     protected $primaryKey='id';
 
     public $timestamps=true;
+    
     const CREATED_AT = 'fecha_registro';
     const UPDATED_AT = 'fecha_actualizacion';
 

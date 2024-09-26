@@ -15,7 +15,6 @@ class VentasFormRequest extends Request
     {
         return true;
     }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -26,7 +25,7 @@ class VentasFormRequest extends Request
             case 'POST':    //Nuevo
                 $rules = [
                     'numero_comprobante'=>'required|max:20',
-                    'total'=>'required',
+                    'total' => 'required|numeric|min:0', // El total debe ser un número positivo
                     'estado'=>'',
                     'idCliente'=>'required',
                     'idComprobante'=>'required',
@@ -47,10 +46,6 @@ class VentasFormRequest extends Request
             default:
                
         }
-
         return $rules;
-
-
-
     }
 }

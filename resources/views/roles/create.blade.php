@@ -9,11 +9,12 @@
         @csrf
         <div class="modal-body">
           <div class="row">
-            <div class="col-lg-12">
-              <div class="form-group">
-                <label for="name">Rol(*)</label>
-                <input type="text" name="name" class="form-control" placeholder="Ingrese aquí Rol(*)..." required>
-              </div>
+          <div class="col-lg-12">
+            <div class="form-group">
+              <label for="name">Rol(*)</label>
+              <input type="text" name="name" class="form-control" placeholder="Ingrese aquí Rol(*)..." required pattern="[A-Za-z0-9\s]+"
+                    title="Solo se permiten letras y números">
+            </div>
             </div>
 
             <div class="col-lg-12 d-none">

@@ -45,10 +45,6 @@ class UsersFormRequest extends Request
             default:
                
         }
-
         return $rules;
-
-
-
     }
 }

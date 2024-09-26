@@ -15,36 +15,33 @@ class RolesFormRequest extends Request
     {
         return true;
     }
-
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array
      */
-    public function rules(){
+    public function rules()
+    {
         switch ($this->method()) {
-            case 'POST':    //Nuevo
+            case 'POST':    // Creación de un nuevo registro
                 $rules = [
-                    'name'=>'required|max:255',
-                    'guard_name'=>'required|max:255',
-                    
-                ];
-                break;                
-            case 'PATCH':   //edicion
-                $rules = [
-                    'name'=>'required|max:255',
-                    'guard_name'=>'required|max:255',
-                    
+                    'name' => 'required|string|min:3|max:255|alpha_num|unique:roles,name',
+                    'guard_name' => 'required|string|min:3|max:255|alpha_num',
                 ];
                 break;
+    
+            case 'PATCH':   // Edición de un registro existente
+                $rules = [
+                    'name' => 'required|string|min:3|max:255|alpha_num|unique:roles,name,' . $this->route('role')->id,
+                    'guard_name' => 'required|string|min:3|max:255|alpha_num',
+                ];
+                break;
+    
             case 'DELETE':
             default:
-               
+                $rules = [];
         }
-
+    
         return $rules;
-
-
-
     }
 }
