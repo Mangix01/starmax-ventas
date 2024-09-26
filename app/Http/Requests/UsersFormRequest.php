@@ -21,30 +21,39 @@ class UsersFormRequest extends Request
      *
      * @return array
      */
-    public function rules(){
+    public function rules()
+    {
         switch ($this->method()) {
-            case 'POST':    //Nuevo
+            case 'POST':    // Nuevo
                 $rules = [
-                    'name'=>'required|max:255',
-                    'email'=>'required|unique:users|email|max:255',
-                    'password'=>'required|max:255',
-                    'remember_token'=>'max:100',
-                    
-                ];
-                break;                
-            case 'PATCH':   //edicion
-                $rules = [
-                    'name'=>'required|max:255',
-                    'email'=>'required|unique:users,id,'.$this->id.',id|email|max:255',
-                    'password'=>'required|max:255',
-                    'remember_token'=>'max:100',
-                    
+                    'name' => 'required|string|min:4|max:255|regex:/^[\p{L}\s]+$/|unique:users,name',
+                    'email' => 'required|email|max:255|unique:users,email',
+                    'password' => 'required|max:255',
+                    'remember_token' => 'max:100',
                 ];
                 break;
+    
+            case 'PATCH':   // Edición
+                $rules = [
+                    'name' => 'required|string|min:4|max:255|regex:/^[\p{L}\s]+$/|unique:users,name,',
+                    'email' => 'required|email|max:255|unique:users,email,',
+                    'password' => 'required|max:255',
+                    'remember_token' => 'max:100',
+                ];
+                break;
+    
             case 'DELETE':
             default:
-               
+                $rules = [];
         }
+    
         return $rules;
     }
+
+    public function messages()
+{
+    return [
+        'name.regex' => 'Solo se permiten letras y espacios en el nombre completo.',
+    ];
+}
 }

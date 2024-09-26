@@ -9,12 +9,12 @@
         @csrf
         <div class="modal-body">
           <div class="row">
-          <div class="col-lg-12">
-            <div class="form-group">
-              <label for="name">Rol(*)</label>
-              <input type="text" name="name" class="form-control" placeholder="Ingrese aquí Rol(*)..." required pattern="[A-Za-z0-9\s]+"
-                    title="Solo se permiten letras y números">
-            </div>
+            <div class="col-lg-12">
+              <div class="form-group">
+                <label for="name">Rol(*)</label>
+                <input type="text" name="name" class="form-control" placeholder="Ingrese aquí Rol(*)..." required pattern="[A-Za-z0-9\s]+" minlength="4" maxlength="255" 
+                      title="Solo se permiten letras y números, con un mínimo de 4 caracteres y un máximo de 255">
+              </div>
             </div>
 
             <div class="col-lg-12 d-none">

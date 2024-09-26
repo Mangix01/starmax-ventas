@@ -95,14 +95,14 @@
             <div class="col-lg-4">
                 <div class="form-group">
                     <label for="cantidad">CANTIDAD *</label>
-                    <input type="number" name="cantidad" id="cantidad" class="form-control" placeholder="cantidad..." onchange="calcularSubtotal();">
+                    <input type="number" name="cantidad" id="cantidad" class="form-control" placeholder="cantidad..." min="1" value="1" onchange="validarCantidad(); calcularSubtotal();">
                 </div>
             </div>
             
             <div class="col-lg-4">
                 <div class="form-group">
                     <label for="precio">PRECIO *</label>
-                    <input type="decimal" name="precio" id="precio" class="form-control" placeholder="precio..." onchange="calcularSubtotal();">
+                    <input type="decimal" name="precio" id="precio" class="form-control" placeholder="precio..." min="0" step="0.01" onchange="validarPrecio(); calcularSubtotal();">
                 </div>
             </div>
             
@@ -230,6 +230,24 @@
      const result = productos.filter(productos=> productos.id === Number(idProducto)); 
      if(idProducto>0)
          $("#precio").val(result[0].precio);
+  }
+
+  function validarCantidad() {
+    var cantidad = document.getElementById('cantidad').value;
+    
+    if (cantidad <= 0) {
+        alert("La cantidad debe ser un número positivo.");
+        document.getElementById('cantidad').value = 1; // restablecer el valor a 1 si es menor
+    }
+  }
+
+  function validarPrecio() {
+    var precio = document.getElementById('precio').value;
+
+    if (precio < 0) {
+        alert("El precio debe ser un número positivo.");
+        document.getElementById('precio').value = 0; // Restablecer a 0 si el valor es negativo
+    }
   }
 </script>
 </x-app-layout>

@@ -13,7 +13,8 @@
             <div class="col-lg-12">
               <div class="form-group">
                 <label for="name">Rol(*)</label>
-                <input type="text" name="name" class="form-control" value="{{ old('name', $role->name) }}" placeholder="Rol..." required>
+                <input type="text" name="name" class="form-control" placeholder="Ingrese aquí Rol(*)..." required pattern="[A-Za-z0-9\s]+" minlength="4" maxlength="255" 
+                      title="Solo se permiten letras y números, con un mínimo de 4 caracteres y un máximo de 255">
               </div>
             </div>
             

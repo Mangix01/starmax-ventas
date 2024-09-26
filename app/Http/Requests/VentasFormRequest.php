@@ -35,7 +35,7 @@ class VentasFormRequest extends Request
             case 'PATCH':   //edicion
                 $rules = [
                     'numero_comprobante'=>'required|max:20',
-                    'total'=>'required',
+                    'total'=>'required|numeric|min:0',
                     'estado'=>'',
                     'idCliente'=>'required',
                     'idComprobante'=>'required',

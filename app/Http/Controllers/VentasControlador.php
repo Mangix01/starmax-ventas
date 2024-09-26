@@ -94,7 +94,8 @@ class VentasControlador extends Controller
                 $detalle_ventas->precio=$precio[$i];
                 $detalle_ventas->descuento=$descuento[$i];
                 $detalle_ventas->subtotal=$subtotal[$i];
-                $detalle_ventas->subtotal = ($detalle_ventas->cantidad * $detalle_ventas->precio) - $detalle_ventas->descuento;
+                //$detalle_ventas->subtotal = ($detalle_ventas->cantidad * $detalle_ventas->precio) - $detalle_ventas->descuento;
+                $detalle_ventas->subtotal = ($detalle_ventas->cantidad * $detalle_ventas->precio) - (($detalle_ventas->cantidad * $detalle_ventas->precio) * ($detalle_ventas->descuento / 100));
                 $detalle_ventas->save();
 
                 $producto  = Producto::findOrFail($detalle_ventas->idProducto);

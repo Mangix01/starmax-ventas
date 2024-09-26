@@ -25,19 +25,19 @@ class UsuariosFormRequest extends Request
         switch ($this->method()) {
             case 'POST':    //Nuevo
                 $rules = [
-                    'nombre'=>'required|max:45',
-                    'nombre_usuario'=>'required|max:45',
-                    'password'=>'required|max:20',
-                    'email'=>'required|email|max:45',
+                    'nombre' => 'required|string|min:4|max:45|regex:/^[\p{L}\s]+$/|unique:users,nombre',
+                    'nombre_usuario' => 'required|string|min:4|max:45|alpha_num|unique:users,nombre_usuario',
+                    'password' => 'required|max:20',
+                    'email' => 'required|email|min:4|max:45|unique:users,email',
                     
                 ];
                 break;                
             case 'PATCH':   //edicion
                 $rules = [
-                    'nombre'=>'required|max:45',
-                    'nombre_usuario'=>'required|max:45',
-                    'password'=>'required|max:20',
-                    'email'=>'required|email|max:45',
+                    'nombre' => 'required|string|min:4|max:45|regex:/^[\p{L}\s]+$/|unique:users,nombre',
+                    'nombre_usuario' => 'required|string|min:4|max:45|alpha_num|unique:users,nombre_usuario',
+                    'password' => 'required|max:20',
+                    'email' => 'required|email|min:4|max:45|unique:users,email',
                     
                 ];
                 break;
@@ -47,8 +47,5 @@ class UsuariosFormRequest extends Request
         }
 
         return $rules;
-
-
-
     }
 }

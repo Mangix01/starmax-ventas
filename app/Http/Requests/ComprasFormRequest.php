@@ -28,7 +28,7 @@ class ComprasFormRequest extends Request
                     'fecha_recepcion'=>'',
                     'numero_comprobante'=>'required|max:50',
                     'estado'=>'',
-                    'total'=>'required',
+                    'total'=>'required|numeric|min:0',
                     'idComprobante'=>'required',
                     'idProveedore'=>'required',
                     
@@ -39,7 +39,7 @@ class ComprasFormRequest extends Request
                     'fecha_recepcion'=>'',
                     'numero_comprobante'=>'required|max:50',
                     'estado'=>'',
-                    'total'=>'required',
+                    'total'=>'required|numeric|min:0',
                     'idComprobante'=>'required',
                     'idProveedore'=>'required',
                     
@@ -51,8 +51,5 @@ class ComprasFormRequest extends Request
         }
 
         return $rules;
-
-
-
     }
 }

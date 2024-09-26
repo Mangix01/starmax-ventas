@@ -25,15 +25,15 @@ class RolesFormRequest extends Request
         switch ($this->method()) {
             case 'POST':    // Creación de un nuevo registro
                 $rules = [
-                    'name' => 'required|string|min:3|max:255|alpha_num|unique:roles,name',
-                    'guard_name' => 'required|string|min:3|max:255|alpha_num',
+                    'name' => 'required|string|min:4|max:255|alpha_num|unique:roles,name',
+                    'guard_name' => 'required|string|min:4|max:255|alpha_num',
                 ];
                 break;
     
             case 'PATCH':   // Edición de un registro existente
                 $rules = [
-                    'name' => 'required|string|min:3|max:255|alpha_num|unique:roles,name,' . $this->route('role')->id,
-                    'guard_name' => 'required|string|min:3|max:255|alpha_num',
+                    'name' => 'required|string|min:4|max:255|alpha_num|unique:roles,name,',
+                    'guard_name' => 'required|string|min:4|max:255|alpha_num',
                 ];
                 break;
     

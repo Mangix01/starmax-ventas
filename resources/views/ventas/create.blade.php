@@ -81,7 +81,7 @@
             <div class="col-lg-4">
               <div class="form-group">
                 <label for="cantidad">CANTIDAD *</label>
-                <input type="number" name="cantidad" id="cantidad" class="form-control" placeholder="Digite aquí CANTIDAD *..." onchange="calcularSubtotal();">
+                <input type="number" name="cantidad" id="cantidad" class="form-control" placeholder="Digite aquí CANTIDAD *..." min="1" value="1" onchange="validarCantidad(); calcularSubtotal();">
                 @error('cantidad') <div style="color:#FF0000"><strong>* {{ $message }} !!</strong></div> @enderror
               </div>
             </div>
@@ -89,15 +89,15 @@
             <div class="col-lg-4">
               <div class="form-group">
                 <label for="precio">PRECIO *</label>
-                <input type="decimal" name="precio" id="precio" class="form-control" placeholder="Digite aquí PRECIO *..." onchange="calcularSubtotal();">
+                <input type="decimal" name="precio" id="precio" class="form-control" readonly placeholder="Digite aquí PRECIO *..." onchange="calcularSubtotal();">
                 @error('precio') <div style="color:#FF0000"><strong>* {{ $message }} !!</strong></div> @enderror
               </div>
             </div>
             
             <div class="col-lg-4">
               <div class="form-group">
-                <label for="descuento">DESCUENTO</label>
-                <input type="decimal" name="descuento" id="descuento" class="form-control" placeholder="Digite aquí DESCUENTO..." onchange="calcularSubtotal();">
+                <label for="descuento">DESCUENTO EN %</label>
+                <input type="decimal" name="descuento" id="descuento" class="form-control" placeholder="Digite aquí DESCUENTO..." min="0" max="100" onchange="validarDescuento(); calcularSubtotal();">
                 @error('descuento') <div style="color:#FF0000"><strong>* {{ $message }} !!</strong></div> @enderror
               </div>
             </div>
@@ -105,7 +105,7 @@
             <div class="col-lg-4">
               <div class="form-group">
                 <label for="subtotal">SUBTOTAL *</label>
-                <input type="decimal" name="subtotal" id="subtotal" class="form-control" placeholder="Digite aquí SUBTOTAL *..." onchange="calcularSubtotal();">
+                <input type="decimal" name="subtotal" id="subtotal" class="form-control" readonly value="0.00" onchange="calcularSubtotal();">
                 @error('subtotal') <div style="color:#FF0000"><strong>* {{ $message }} !!</strong></div> @enderror
               </div>
             </div>
@@ -206,13 +206,23 @@
     }
   }
   // Calculo de subtotal
-  function calcularSubtotal(){
+  /*function calcularSubtotal(){
     cantidad=$("#cantidad").val();
     precio=$("#precio").val();
     descuento = $("#descuento").val();
     subtotal = (Number(cantidad)*Number(precio)-Number(descuento)).toFixed(2);
     $("#subtotal").val(subtotal);
+  }*/
+  function calcularSubtotal(){
+    var cantidad = $("#cantidad").val();
+    var precio = $("#precio").val();
+    var descuento = $("#descuento").val();
+    var totalSinDescuento = Number(cantidad) * Number(precio);
+    var descuentoAplicado = totalSinDescuento * (Number(descuento) / 100);
+    var subtotal = (totalSinDescuento - descuentoAplicado).toFixed(2);
+    $("#subtotal").val(subtotal);
   }
+
   // Tomar el Precio
   document.getElementById("idProducto" ).addEventListener( "change" , colocarPrecio);  
 
@@ -222,6 +232,23 @@
      const result = productos.filter(productos=> productos.id === Number(idProducto)); 
      if(idProducto>0)
          $("#precio").val(result[0].precio);
+  }
+
+  function validarCantidad() {
+    var cantidad = document.getElementById('cantidad').value;
+    
+    if (cantidad <= 0) {
+        alert("La cantidad debe ser un número positivo.");
+        document.getElementById('cantidad').value = 1; // restablecer el valor a 1 si es menor
+    }
+  }
+  function validarDescuento() {
+    var descuento = document.getElementById('descuento').value;
+
+    if (descuento < 0 || descuento > 100) {
+        alert("El descuento debe ser un número entre 0 y 100.");
+        document.getElementById('descuento').value = 0; // Restablecer a 0 si el valor es inválido
+    }
   }
 </script>
 </x-app-layout>
