@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header colorEdit">
-        <h4 class="modal-title" id="modal_personas_Edit_LongTitle">{{__('Editar')}} Persona</h4>
+        <h4 class="modal-title" id="modal_personas_Edit_LongTitle">{{__('Editar')}} Cliente/Proveedor</h4>
         <button type="button" class="btn btn-close btn-warning pull-right" data-dismiss="modal" aria-label="Close">X</button>
       </div>
       <form method="POST" action="{{ route('personas.update', $persona->id) }}" enctype="multipart/form-data">

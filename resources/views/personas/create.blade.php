@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header colorCreate">
-        <h4 class="modal-title" id="modal_Personas_Create_LongTitle">{{__('Nuevo')}} Persona</h4>
+        <h4 class="modal-title" id="modal_Personas_Create_LongTitle">{{__('Nuevo')}} Cliente/Proveedor</h4>
         <button type="button" class="btn btn-close btn-success pull-right" data-dismiss="modal" aria-label="Close">X</button>
       </div>
       <form action="{{ url('personas') }}" method="POST" autocomplete="off" enctype="multipart/form-data">

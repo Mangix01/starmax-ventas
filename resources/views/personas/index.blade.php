@@ -13,7 +13,7 @@
         <div class="card-header bg-info text-white">
             <div class="row">
                 <div class="col-sm-6">
-                    <h2> {{ __('Listado de') }} <b>Personas</b></h2>
+                    <h2> {{ __('Listado de') }} <b>Cliente/Proveedor</b></h2>
                 </div>
                 <div class="col-sm-5">
 				    <div class="search-box float-right">
