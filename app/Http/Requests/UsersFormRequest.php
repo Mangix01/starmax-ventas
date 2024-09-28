@@ -26,8 +26,8 @@ class UsersFormRequest extends Request
         switch ($this->method()) {
             case 'POST':    // Nuevo
                 $rules = [
-                    'name' => 'required|string|min:4|max:255|regex:/^[\p{L}\s]+$/|unique:users,name',
-                    'email' => 'required|email|max:255|unique:users,email',
+                    'name' => 'required|max:255|unique:users|regex:/^[A-Z\s]+$/', // Solo letras mayúsculas y espacios
+                    'email' => 'required|unique:users|email|max:255|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,7}$/', // Ajustado para incluir caracteres válidos
                     'password' => 'required|max:255',
                     'remember_token' => 'max:100',
                 ];
@@ -35,8 +35,8 @@ class UsersFormRequest extends Request
     
             case 'PATCH':   // Edición
                 $rules = [
-                    'name' => 'required|string|min:4|max:255|regex:/^[\p{L}\s]+$/|unique:users,name,',
-                    'email' => 'required|email|max:255|unique:users,email,',
+                    'name' => 'required|max:255|unique:users,name,' . $this->id . '|regex:/^[A-Z\s]+$/',
+                    'email' => 'required|unique:users,email,' . $this->id . '|email|max:255|regex:/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,7}$/',
                     'password' => 'required|max:255',
                     'remember_token' => 'max:100',
                 ];
