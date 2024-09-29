@@ -12,19 +12,37 @@
       @method('PATCH')
       <div class="modal-body">
           <div class="row">
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-           		<div class="form-group">
-	            	<label for="name">Nombre(*)</label>
-	            	<input type="text" name="name" class="form-control" value="{{old('name',$user->name)}}" placeholder="Nombre(*)..." required pattern="^[\p{L}\s]+$" minlength="4" maxlength="255" title="Solo se permiten letras y espacios en el nombre completo. Debe tener entre 4 y 255 caracteres.">
-	            </div>
-            </div>
+            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12"> 
+              <div class="form-group">
+                  <label for="name">Nombre (*)</label>
+                  <input type="text" name="name" id="name" 
+                         class="form-control" 
+                         value="{{ old('name', strtoupper($user->name)) }}" 
+                         placeholder="Nombre (*)..." 
+                         required 
+                         pattern="^[A-Z\s]+$" 
+                         minlength="5" 
+                         maxlength="255">
+                  <small class="form-text text-muted">
+                      Solo se permiten letras mayúsculas y espacios. Mínimo 5 caracteres.
+                  </small>
+              </div>
+          </div>
 
-            <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
-           		<div class="form-group">
-	            	<label for="email">Email(*)</label>
-	            	<input type="email" name="email" class="form-control" value="{{old('email',$user->email)}}" placeholder="Email(*)..." required minlength="4" maxlength="255" title="Por favor, introduce un email válido. Debe tener entre 4 y 255 caracteres.">
-	            </div>
-            </div>
+          <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12"> 
+              <div class="form-group">
+                  <label for="email">Email (*)</label>
+                  <input type="email" name="email" id="email" 
+                         class="form-control" 
+                         value="{{ old('email', $user->email) }}" 
+                         placeholder="Email (*)..." 
+                         required 
+                         pattern="^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}$">
+                  <small class="form-text text-muted">
+                      Solo se permiten letras, números, puntos, guiones bajos y altos.
+                  </small>
+              </div>
+          </div>
 
             <div class="col-lg-6 col-sm-6 col-md-6 col-xs-12">
            		<div class="form-group">
