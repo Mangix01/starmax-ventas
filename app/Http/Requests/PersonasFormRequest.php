@@ -25,27 +25,27 @@ class PersonasFormRequest extends Request
         switch ($this->method()) {
             case 'POST':    //Nuevo
                 $rules = [
-                    'tipo_persona'=>'required|max:9',
-                    'razon_social'=>'required|max:100',
-                    'tipo_documento'=>'required|max:45',
-                    'numero_documento'=>'required|unique:personas|max:45',
-                    'direccion'=>'required|max:70',
-                    'telefono'=>'required|max:15',
-                    'email'=>'required|email|max:100',
-                    'estado'=>'',
+                    'tipo_persona' => 'required|max:9',
+                    'razon_social' => 'required|max:100|regex:/^[A-Z\s]+$/',
+                    'tipo_documento' => 'required|in:CI,Licencia de conducir,NIT,RUC,pasaporte',
+                    'numero_documento' => 'required|alpha_num|max:45|unique:personas',
+                    'direccion' => 'required|max:70',
+                    'telefono' => 'required|regex:/^\+?[0-9\s\-]*$/|max:15',
+                    'email' => 'required|email|max:100|regex:/^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,7}$/',
+                    'estado' => '',
                     
                 ];
                 break;                
             case 'PATCH':   //edicion
                 $rules = [
-                    'tipo_persona'=>'required|max:9',
-                    'razon_social'=>'required|max:100',
-                    'tipo_documento'=>'required|max:45',
-                    'numero_documento'=>'required|unique:personas,numero_documento,'.$this->id.',id|max:45',
-                    'direccion'=>'required|max:70',
-                    'telefono'=>'required|max:15',
-                    'email'=>'required|email|max:100',
-                    'estado'=>'',
+                    'tipo_persona' => 'required|max:9',
+                    'razon_social' => 'required|max:100|regex:/^[A-Z\s]+$/',
+                    'tipo_documento' => 'required|in:CI,Licencia de conducir,NIT,RUC,pasaporte',
+                    'numero_documento' => 'required|alpha_num|max:45|unique:personas,numero_documento,' . $this->id . ',id',
+                    'direccion' => 'required|max:70',
+                    'telefono' => 'required|regex:/^\+?[0-9\s\-]*$/|max:15',
+                    'email' => 'required|email|max:100|regex:/^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,7}$/',
+                    'estado' => '',
                     
                 ];
                 break;
