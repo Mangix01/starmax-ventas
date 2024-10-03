@@ -25,29 +25,29 @@ class ProductosFormRequest extends Request
         switch ($this->method()) {
             case 'POST':    //Nuevo
                 $rules = [
-                    'idCategoria'=>'required',
-                    'codigo'=>'max:60',
-                    'nombre'=>'required|unique:productos|max:100',
-                    'stock'=>'required',
-                    'marca'=>'required|max:50',
-                    'descripcion'=>'max:255',
-                    'precio'=>'required',
-                    'imagen'=>'max:1000000',
-                    'estado'=>'',
+                    'idCategoria' => 'required',
+                    'codigo' => 'required|alpha_num|max:60',
+                    'nombre' => 'required|regex:/^[\p{L}0-9\s]+$/u|max:100',
+                    'stock' => 'required|integer|min:0', // Stock no puede ser negativo
+                    'marca' => 'required|alpha_num|max:50',
+                    'descripcion' => 'nullable|max:255|regex:/^[^<>]*$/', // Sin caracteres especiales
+                    'precio' => 'required|numeric|min:0', // Precio no puede ser negativo
+                    'imagen' => 'nullable|max:1000000',
+                    'estado' => '',
                     
                 ];
                 break;                
             case 'PATCH':   //edicion
                 $rules = [
-                    'idCategoria'=>'required',
-                    'codigo'=>'max:60',
-                    'nombre'=>'required|unique:productos,nombre,'.$this->id.',id|max:100',
-                    'stock'=>'required',
-                    'marca'=>'required|max:50',
-                    'descripcion'=>'max:255',
-                    'precio'=>'required',
-                    'imagen'=>'max:1000000',
-                    'estado'=>'',
+                    'idCategoria' => 'required',
+                    'codigo' => 'required|alpha_num|max:60',
+                    'nombre' => 'required|regex:/^[\p{L}0-9\s]+$/u|max:100|unique:productos,nombre,' . $this->id . ',id',
+                    'stock' => 'required|integer|min:0', // Stock no puede ser negativo
+                    'marca' => 'required|alpha_num|max:50',
+                    'descripcion' => 'nullable|max:255|regex:/^[^<>]*$/', // Sin caracteres especiales
+                    'precio' => 'required|numeric|min:0', // Precio no puede ser negativo
+                    'imagen' => 'nullable|max:1000000',
+                    'estado' => '',
                     
                 ];
                 break;
