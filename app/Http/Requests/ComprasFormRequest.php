@@ -25,23 +25,22 @@ class ComprasFormRequest extends Request
         switch ($this->method()) {
             case 'POST':    //Nuevo
                 $rules = [
-                    'fecha_recepcion'=>'',
-                    'numero_comprobante'=>'required|max:50',
-                    'estado'=>'',
-                    'total'=>'required|numeric|min:0',
-                    'idComprobante'=>'required',
-                    'idProveedore'=>'required',
+                    'fecha_recepcion' => '',
+                    'numero_comprobante' => 'required|max:50|regex:/^[A-Za-z0-9]+$/', // Validación de alfanumérico
+                    'estado' => '',
+                    'total' => 'required|numeric|min:0', // Total no puede ser negativo
+                    'idComprobante' => 'required',
+                    'idProveedore' => 'required',
+                    // Agrega aquí más reglas si es necesario
                     
                 ];
                 break;                
             case 'PATCH':   //edicion
                 $rules = [
-                    'fecha_recepcion'=>'',
-                    'numero_comprobante'=>'required|max:50',
-                    'estado'=>'',
-                    'total'=>'required|numeric|min:0',
-                    'idComprobante'=>'required',
-                    'idProveedore'=>'required',
+                    'numero_comprobante.required' => 'El número de comprobante es obligatorio.',
+                    'numero_comprobante.regex' => 'El número de comprobante debe ser alfanumérico.',
+                    'total.required' => 'El total es obligatorio.',
+                    'total.min' => 'El total no puede ser negativo.',
                     
                 ];
                 break;
