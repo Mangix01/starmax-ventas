@@ -58,6 +58,52 @@ class VentasControlador extends Controller
             return view('ventas.report',compact('ventas','FechaIni','FechaFin'));
         }
     }
+    public function report01(Request $request){
+        // if ($request){
+        //     $FechaIni=trim($request->get('FechaIni'));
+        //     $FechaFin=trim($request->get('FechaFin'));
+            
+        //     // Convertir las fechas a objetos Carbon para manipularlas más fácilmente
+        //     $FechaIn = \Carbon\Carbon::parse($FechaIni)->startOfDay();
+        //     $FechaFi = \Carbon\Carbon::parse($FechaFin)->endOfDay();
+
+        //     $ventas=Venta::whereBetween('fecha_venta', [$FechaIn, $FechaFi])
+        //         ->paginate(1000);
+        //     return view('ventas.report01',compact('ventas','FechaIni','FechaFin'));
+        // }
+        $clientes=Cliente::all();
+        $productos=Producto::where('estado',true)->get(); 
+        $FechaIni=trim($request->get('FechaIni'));
+        $FechaFin=trim($request->get('FechaFin'));
+
+        $query = Venta::with(['cliente', 'detalle_venta.producto']);
+
+        // Filtrar por razón social
+        if ($request->filled('razon_social')) {
+            $query->whereHas('cliente.persona', function($q) use ($request) {
+                $q->where('razon_social', $request->razon_social);
+            });
+        }
+
+        // Filtrar por producto
+        if ($request->filled('producto')) {
+            $query->whereHas('detalle_venta.producto', function($q) use ($request) {
+                $q->where('idProducto', $request->producto);
+            });
+        }
+
+        // Filtrar por rango de fechas
+        if ($request->filled('FechaIni') && $request->filled('FechaFin')) {
+            $fechaInicio = Carbon::parse($request->FechaIni)->startOfDay();
+            $fechaFin = Carbon::parse($request->FechaFin)->endOfDay();
+            
+            $query->whereBetween('fecha_venta', [$fechaInicio, $fechaFin]);
+        }
+
+        $ventas = $query->get();
+        // dd($ventas);
+        return view('ventas.report01', compact('ventas','FechaIni','FechaFin','clientes','productos','request'));
+    }
     public function create(){
 		$clientes=Cliente::all();
         $comprobantes=Comprobante::where('estado',true)->get();
