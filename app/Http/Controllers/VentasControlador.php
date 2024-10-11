@@ -104,6 +104,55 @@ class VentasControlador extends Controller
         // dd($ventas);
         return view('ventas.report01', compact('ventas','FechaIni','FechaFin','clientes','productos','request'));
     }
+    public function report02(Request $request){
+        $query = Venta::with(['cliente', 'detalle_venta.producto']);
+
+        // Filtros
+         if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
+            $fechaInicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+            $fechaFin = Carbon::parse($request->fecha_fin)->endOfDay();
+            
+            $query->whereBetween('fecha_venta', [$fechaInicio, $fechaFin]);
+        }
+
+        // Filtrar por razón social
+        if ($request->filled('razon_social')) {
+            $query->whereHas('cliente.persona', function($q) use ($request) {
+                $q->where('razon_social', $request->razon_social);
+            });
+        }
+
+        if ($request->producto) {
+            $query->whereHas('detalle_venta.producto', function($q) use ($request) {
+                $q->where('id', $request->producto);
+            });
+        }
+
+        if ($request->name) {
+            $query->where('usuario', $request->name);
+        }
+
+        if ($request->has('estado') && $request->estado !== '' && $request->estado !== null) {
+            $query->where('estado', $request->estado);
+        }
+
+
+        if ($request->idCategoria) {
+            $query->whereHas('detalle_venta.producto.categoria', function($q) use ($request) {
+                $q->where('idCategoria', $request->idCategoria);
+            });
+        }
+
+        $ventas = $query->get();
+        // dd($fechaInicio,$fechaFin,$ventas,$request->estado);
+        // Obtener datos para los filtros
+        $clientes = Cliente::all();
+        $productos = Producto::where('estado',true)->get();;
+        $categorias=Categoria::where('estado',true)->get();
+        $usuarios = User::select('id','name')->get();
+
+        return view('ventas.report02', compact('ventas', 'clientes', 'productos','request','categorias','usuarios'));
+    }
     public function create(){
 		$clientes=Cliente::all();
         $comprobantes=Comprobante::where('estado',true)->get();
