@@ -153,6 +153,91 @@ class VentasControlador extends Controller
 
         return view('ventas.report02', compact('ventas', 'clientes', 'productos','request','categorias','usuarios'));
     }
+
+    public function report03(Request $request)
+    {
+
+        $query = Producto::query();
+        $categoriaId = $request->idCategoria;
+        if ($categoriaId) {
+            $query->where('idCategoria', $categoriaId);
+        }
+
+        // Obtener las fechas
+        // $fechaInicio = $request->input('fecha_inicio', '2023-01-01')->startOfDay(); // Cambia el año según sea necesario
+        // $fechaFin = $request->input('fecha_fin', now()->toDateString())->endOfDay();
+
+        $fechaInicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fechaFin = Carbon::parse($request->fecha_fin)->endOfDay();
+
+        $queryProductosVendidos = Venta::with('detalle_venta.producto')
+            ->whereBetween('fecha_venta', [$fechaInicio, $fechaFin]);
+        if ($categoriaId) {
+            $queryProductosVendidos->whereHas('detalle_venta.producto', function($q) use ($categoriaId) {
+                $q->where('idCategoria', $categoriaId);
+            });
+        }
+
+        // Obtener productos más vendidos
+        $productosVendidos = $queryProductosVendidos->get()
+            ->flatMap(function ($venta) {
+                return $venta->detalle_venta;
+            })
+            ->groupBy('idProducto')
+            ->map(function ($detalle) {
+                // Asegúrate de que el primer elemento es un objeto DetalleVenta
+                $primerDetalle = $detalle->first(); 
+                return [
+                    'producto' => $primerDetalle->producto, // Esto debería funcionar
+                    'cantidad' => $detalle->sum('cantidad'),
+                ];
+            })
+            ->sortByDesc('cantidad')
+            ->take(15);
+
+        $primerProducto = $productosVendidos->first();
+        $ultimoProducto = $productosVendidos->last();
+
+        $productoMasVendido = $primerProducto ? $primerProducto['producto']->nombre : '';
+        $cantidadMasVendida = $primerProducto ? $primerProducto['cantidad'] : '';
+
+        $productoMenosVendido = $ultimoProducto ? $ultimoProducto['producto']->nombre : '';
+        $cantidadMenosVendida = $ultimoProducto ? $ultimoProducto['cantidad'] : '';
+
+        // Obtener productos con bajo stock
+        $productosBajoStock = $query->where('stock', '<=', 5)
+            ->with(['detalles_compras.compra.proveedore'])
+            ->get()
+            ->map(function ($producto) {
+                // Obtener el último proveedor basado en la fecha de recepción
+                $ultimoProveedor = $producto->detalles_compras
+                    ->filter(function ($detalle) {
+                        return $detalle->compra && $detalle->compra->proveedore->persona; // Filtrar los que tienen compra y proveedor
+                    })
+                    ->sortByDesc(function ($detalle) {
+                        return $detalle->compra->fecha_recepcion; // Ordenar por fecha de recepción
+                    })
+                    ->first(); // Obtener el último detalle
+
+                return [
+                    'producto' => $producto,
+                    'ultimo_proveedor' => $ultimoProveedor ? $ultimoProveedor->compra->proveedore : null, // Asegúrate de que no sea nulo
+                ];
+            });
+
+        // dd($productosBajoStock);
+
+        // Obtener labels y valores para la gráfica
+        $labels = $productosVendidos->pluck('producto.nombre')->toArray();
+        $values = $productosVendidos->pluck('cantidad')->toArray();
+
+        // Obtener datos para filtros
+        $categorias = Categoria::where('estado',true)->get();
+        $proveedores = Proveedore::all();
+        // Otras consultas para estados o filtros adicionales
+
+        return view('ventas.report03', compact('labels', 'values', 'productoMasVendido', 'cantidadMasVendida', 'productoMenosVendido', 'cantidadMenosVendida', 'productosBajoStock', 'categorias', 'proveedores', 'fechaInicio', 'fechaFin','request'));
+    }
     public function create(){
 		$clientes=Cliente::all();
         $comprobantes=Comprobante::where('estado',true)->get();
