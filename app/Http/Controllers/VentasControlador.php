@@ -246,60 +246,82 @@ class VentasControlador extends Controller
         $productos=Producto::where('estado',true)->get(); 
         return view('ventas.create',compact('clientes','comprobantes','productos',));
     }
-    public function store (VentasFormRequest $request){
-        try{
-            DB::beginTransaction();
-            $venta=new Venta;
-            $venta->numero_comprobante = $request->get('numero_comprobante');
-            $venta->total = $request->get('total');
+    public function store(VentasFormRequest $request)
+    {
+        DB::beginTransaction();
+        try {
+            $venta = new Venta;
+            $venta->numero_comprobante = $this->generarNumeroComprobante();
             $venta->estado = $request->get('estado');
             $venta->idCliente = $request->get('idCliente');
-            $venta->idComprobante = $request->get('idComprobante');
+            $venta->idComprobante = $request->get('idComprobante'); 
+            $venta->fecha_venta = $request->get('fecha_venta');
+            $venta->usuario = auth()->user()->name;
             $venta->save();
 
-            //Toma los datos del arreglo del detalle_ventas
-            $idProducto=$request->get('aidProducto');
-            $cantidad=$request->get('acantidad');
-            $precio=$request->get('aprecio');
-            $descuento=$request->get('adescuento');
-            $subtotal=$request->get('asubtotal');
-            
-            $i=0;   $total=0;
-            while($i < count($idProducto)){
-                $detalle_ventas=new Detalle_Venta;
-                //Toma los datos del arreglo del detalle_ventas
-                $detalle_ventas->idVenta=$venta->id;
-                $detalle_ventas->idProducto=$idProducto[$i];
-                $detalle_ventas->cantidad=$cantidad[$i];
-                $detalle_ventas->precio=$precio[$i];
-                $detalle_ventas->descuento=$descuento[$i];
-                $detalle_ventas->subtotal=$subtotal[$i];
-                //$detalle_ventas->subtotal = ($detalle_ventas->cantidad * $detalle_ventas->precio) - $detalle_ventas->descuento;
-                $detalle_ventas->subtotal = ($detalle_ventas->cantidad * $detalle_ventas->precio) - (($detalle_ventas->cantidad * $detalle_ventas->precio) * ($detalle_ventas->descuento / 100));
-                $detalle_ventas->save();
+            $idProducto = $request->get('aidProducto');
+            $cantidad = $request->get('acantidad');
+            $descuento = $request->get('adescuento');
 
-                $producto  = Producto::findOrFail($detalle_ventas->idProducto);
-                if( $producto ){
-                    $producto->stock = $producto->stock - $detalle_ventas->cantidad;
-                    $producto->update();
+            // Validaciones
+            $total = 0;
+            for ($i = 0; $i < count($idProducto); $i++) {
+                if ($cantidad[$i] < 0) {
+                    throw new \Exception('La cantidad no puede ser negativa');
                 }
 
-                $total += $detalle_ventas->subtotal;
-                $i++;
-            }
-            if($venta->total !==$total){
-                $venta->total = $total;
-                $venta->update();
+                // Obtener el producto
+                $producto = Producto::findOrFail($idProducto[$i]);
+
+                // Validar stock
+                if ($cantidad[$i] > $producto->stock) {
+                    throw new \Exception('Cantidad superior al stock disponible');
+                }
+
+                $precio = $producto->precio; // Asegúrate de que este campo existe
+
+                // Calcular subtotal
+                $subtotalBruto = $cantidad[$i] * $precio;
+
+                // Validar descuento
+                if ($descuento[$i] < 0) {
+                    throw new \Exception('El descuento no puede ser negativo');
+                }
+
+                // Calcular el descuento
+                $montoDescuento = ($descuento[$i] / 100) * $subtotalBruto; // Asumiendo que el descuento es en porcentaje
+                $subtotal = $subtotalBruto - $montoDescuento;
+
+                // Guardar detalle de venta
+                $detalle_ventas = new Detalle_Venta;
+                $detalle_ventas->idVenta = $venta->id;
+                $detalle_ventas->idProducto = $idProducto[$i];
+                $detalle_ventas->cantidad = $cantidad[$i];
+                $detalle_ventas->precio = $precio; // Usar el precio de compra_detalle
+                $detalle_ventas->descuento = $descuento[$i];
+                $detalle_ventas->subtotal = $subtotal;
+                $detalle_ventas->save();
+
+                // Actualizar stock del producto
+                $producto->stock -= $cantidad[$i];
+                $producto->save();
+
+                // Sumar al total
+                $total += $subtotal;
             }
 
-            LogHelper::guardarLog('Registro de Venta','Se ha realizado una venta');
+            // Guardar venta
+            $venta->total = $total;
+            $venta->save();
 
+            LogHelper::guardarLog('Registro de Venta', 'Se ha realizado una venta');
             DB::commit();
             toastr()->success(__('Grabación exitosa...'));
-        }catch(\Exception $e){
-            DB::rollback(); // en caso de error anulo transaccion
-            toastr()->error(__('La grabación NO ha sido exitosa'));
+        } catch (\Exception $e) {
+            DB::rollback();
+            toastr()->error(__('La grabación NO ha sido exitosa: ' . $e->getMessage()));
         }
+
         return Redirect::to('ventas');
     }
     public function show($id){
