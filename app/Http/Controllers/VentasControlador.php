@@ -324,6 +324,22 @@ class VentasControlador extends Controller
 
         return Redirect::to('ventas');
     }
+    private function generarNumeroComprobante()
+    {
+        // Obtener el último número de comprobante guardado
+        $ultimoComprobante = Venta::orderBy('id', 'desc')->first();
+
+        // Obtener el número de comprobante actual, si existe
+        if ($ultimoComprobante) {
+            $ultimoNumero = intval(substr($ultimoComprobante->numero_comprobante, 2)); // Extrae el número
+            $nuevoNumero = $ultimoNumero + 1; // Incrementa en 1
+        } else {
+            $nuevoNumero = 1; // Si no hay comprobantes, comienza en 1
+        }
+
+        // Formatear el nuevo número
+        return 'V-' . str_pad($nuevoNumero, 5, '0', STR_PAD_LEFT); // V-00001, V-00002, etc.
+    }
     public function show($id){
         $venta=Venta::findOrFail($id);
         $clientes=Cliente::all();
