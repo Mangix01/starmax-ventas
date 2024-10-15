@@ -433,14 +433,103 @@ class VentasControlador extends Controller
         }            
         return Redirect::to('ventas');
     }
-    public function pdf($id){
-        set_time_limit(600);
-        $venta=Venta::findOrFail($id);
-        $detalle_ventas=Detalle_venta::where('idVenta',$id)->get();
-        $pdf = Pdf::loadView('ventas.pdf', ['venta' => $venta ,'detalle_ventas' => $detalle_ventas] );
-        $pdf->setPaper('A5', 'portrait');
-        return $pdf->stream();
 
+    public function generarPdf(Request $request)
+    {
+
+        $query = Producto::query();
+        $categoriaId = $request->idCategoria;
+        if ($categoriaId) {
+            $query->where('idCategoria', $categoriaId);
+        }
+
+        // Obtener las fechas
+        $fechaInicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fechaFin = Carbon::parse($request->fecha_fin)->endOfDay();
+
+        $queryProductosVendidos = Venta::with('detalle_venta.producto')
+            ->whereBetween('fecha_venta', [$fechaInicio, $fechaFin]);
+        if ($categoriaId) {
+            $queryProductosVendidos->whereHas('detalle_venta.producto', function($q) use ($categoriaId) {
+                $q->where('idCategoria', $categoriaId);
+            });
+        }
+
+        // Obtener productos más vendidos
+        $productosVendidos = $queryProductosVendidos->get()
+            ->flatMap(function ($venta) {
+                return $venta->detalle_venta;
+            })
+            ->groupBy('idProducto')
+            ->map(function ($detalle) {
+                // Asegúrate de que el primer elemento es un objeto DetalleVenta
+                $primerDetalle = $detalle->first(); 
+                return [
+                    'producto' => $primerDetalle->producto, // Esto debería funcionar
+                    'cantidad' => $detalle->sum('cantidad'),
+                ];
+            })
+            ->sortByDesc('cantidad')
+            ->take(15);
+
+        $primerProducto = $productosVendidos->first();
+        $ultimoProducto = $productosVendidos->last();
+
+        $productoMasVendido = $primerProducto ? $primerProducto['producto']->nombre : '';
+        $cantidadMasVendida = $primerProducto ? $primerProducto['cantidad'] : '';
+
+        $productoMenosVendido = $ultimoProducto ? $ultimoProducto['producto']->nombre : '';
+        $cantidadMenosVendida = $ultimoProducto ? $ultimoProducto['cantidad'] : '';
+
+        // Obtener productos con bajo stock
+        $productosBajoStock = $query->where('stock', '<=', 5)
+            ->with(['detalles_compras.compra.proveedore'])
+            ->get()
+            ->map(function ($producto) {
+                // Obtener el último proveedor basado en la fecha de recepción
+                $ultimoProveedor = $producto->detalles_compras
+                    ->filter(function ($detalle) {
+                        return $detalle->compra && $detalle->compra->proveedore->persona; // Filtrar los que tienen compra y proveedor
+                    })
+                    ->sortByDesc(function ($detalle) {
+                        return $detalle->compra->fecha_recepcion; // Ordenar por fecha de recepción
+                    })
+                    ->first(); // Obtener el último detalle
+
+                return [
+                    'producto' => $producto,
+                    'ultimo_proveedor' => $ultimoProveedor ? $ultimoProveedor->compra->proveedore : null, // Asegúrate de que no sea nulo
+                ];
+            });
+
+        // dd($productosBajoStock);
+
+        // Obtener labels y valores para la gráfica
+        $labels = $productosVendidos->pluck('producto.nombre')->toArray();
+        $values = $productosVendidos->pluck('cantidad')->toArray();
+
+         // Llama a la función que guarda el gráfico y obtén la URL
+        $graficoUrl = null;
+        if ($request->has('grafico')) {
+            $graficoUrl = $this->guardarGrafico($request);
+        }
+        
+        $data = [
+            'fechaInicio' => $fechaInicio->format('Y-m-d'),
+            'fechaFin' => $fechaFin->format('Y-m-d'),
+            'productoMasVendido' => $productoMasVendido, // ajusta según tu lógica
+            'cantidadMasVendida' => $cantidadMasVendida, // ajusta según tu lógica
+            'productoMenosVendido' => $productoMenosVendido, // ajusta según tu lógica
+            'cantidadMenosVendida' => $cantidadMenosVendida, // ajusta según tu lógica
+            'productosBajoStock' => $productosBajoStock, // ajusta según tu lógica
+            'labels' => $labels, // ajusta según tu lógica
+            'values' => $values, // ajusta según tu lógica
+            'grafico' => $graficoUrl, // Agrega esta línea
+        ];
+        // dd($labels, $values);
+
+        $pdf = Pdf::loadView('ventas.report04', $data);
+        return $pdf->download('reporte.pdf');
     }
 
     public function cambiarEstado($id){
