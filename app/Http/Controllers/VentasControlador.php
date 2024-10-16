@@ -532,6 +532,32 @@ class VentasControlador extends Controller
         return $pdf->download('reporte.pdf');
     }
 
+    public function guardarGrafico(Request $request)
+    {
+        $grafico = $request->grafico;
+
+        // Limpia la cadena de datos URL y guarda la imagen
+        $grafico = str_replace('data:image/png;base64,', '', $grafico);
+        $grafico = str_replace(' ', '+', $grafico);
+        $grafico = base64_decode($grafico);
+
+        // Verifica si la decodificación fue exitosa
+        if ($grafico === false) {
+            return response()->json(['error' => 'Decodificación fallida'], 400);
+        }
+
+        // Guarda la imagen
+        $nombreArchivo = 'grafico_' . time() . '.png';
+        Storage::disk('public')->put($nombreArchivo, $grafico);
+
+        // Verifica si el archivo se guardó
+        if (!Storage::disk('public')->exists($nombreArchivo)) {
+            return response()->json(['error' => 'Error al guardar el archivo'], 500);
+        }
+
+        return response()->json(['grafico' => Storage::url($nombreArchivo)]);
+    }
+
     public function cambiarEstado($id){
         $venta= Venta::findOrFail($id);
         $venta->estado = !$venta->estado;     // cambiar el estado de la venta
