@@ -61,61 +61,87 @@ class ComprasControlador extends Controller
         $productos=Producto::where('estado',true)->get(); 
         return view('compras.create',compact('hoy','comprobantes','proveedores','productos',));
     }
-    public function store (ComprasFormRequest $request){
-        try{
+    public function store(ComprasFormRequest $request)
+    {
+        try {
             DB::beginTransaction();
-            $compra=new Compra;
+
+            $numero_comprobante = $request->get('numero_comprobante');
+
+            // Toma los datos del arreglo del detalle_compras
+            $idProducto = $request->get('aidProducto');
+            $cantidad = $request->get('acantidad');
+            $precio = $request->get('aprecio');
+            $precioVenta = $request->get('aprecioVenta');
+
+            $total = 0;
+
+            // Validaciones en el ciclo
+            foreach ($cantidad as $cant) {
+                if ($cant < 0) {
+                    return Redirect::back()->withInput()->withErrors(['cantidad' => 'La cantidad no puede ser negativa']);
+                }
+            }
+
+            foreach ($precio as $p) {
+                if ($p < 0) {
+                    return Redirect::back()->withInput()->withErrors(['precio' => 'El precio de compra no puede ser negativo']);
+                }
+            }
+
+            foreach ($precioVenta as $pv) {
+                if ($pv < 0) {
+                    return Redirect::back()->withInput()->withErrors(['precio_venta' => 'El precio de venta no puede ser negativo']);
+                }
+            }
+
+            // Creación de la compra
+            $compra = new Compra;
             $compra->fecha_recepcion = $request->get('fecha_recepcion');
-            $compra->numero_comprobante = $request->get('numero_comprobante');
+            $compra->numero_comprobante = $numero_comprobante;
             $compra->estado = $request->get('estado');
-            $compra->total = $request->get('total');
+            $compra->total = $total; // Asignar total aquí
             $compra->idComprobante = $request->get('idComprobante');
             $compra->idProveedore = $request->get('idProveedore');
             $compra->save();
 
-            //Toma los datos del arreglo del detalle_compras
-            $idProducto=$request->get('aidProducto');
-            $cantidad=$request->get('acantidad');
-            $precio=$request->get('aprecio');
-            $subtotal=$request->get('asubtotal');
-            
-            $i=0;   $total=0;
-            while($i < count($idProducto)){
-                $detalle_compras=new Detalle_Compra;
-                //Toma los datos del arreglo del detalle_compras
-                $detalle_compras->idCompra=$compra->id;
-                $detalle_compras->idProducto=$idProducto[$i];
-                $detalle_compras->cantidad=$cantidad[$i];
-                $detalle_compras->precio=$precio[$i];
-                $detalle_compras->subtotal=$subtotal[$i];
-                $detalle_compras->subtotal = $detalle_compras->cantidad * $detalle_compras->precio;
+            // Guardar los detalles de la compra
+            for ($i = 0; $i < count($idProducto); $i++) {
+                $detalle_compras = new Detalle_Compra;
+                $detalle_compras->idCompra = $compra->id;
+                $detalle_compras->idProducto = $idProducto[$i];
+                $detalle_compras->cantidad = $cantidad[$i];
+                $detalle_compras->precio = $precio[$i];
+                $detalle_compras->precio_venta = $precioVenta[$i];
+                $detalle_compras->subtotal = $cantidad[$i] * $precio[$i]; // Calcular subtotal
                 $detalle_compras->save();
-                $total += $detalle_compras->subtotal;
-                $i++;
 
-                $producto  = Producto::findOrFail($detalle_compras->idProducto);
-                if( $producto ){
+                // Actualizar el stock del producto
+                $producto = Producto::findOrFail($detalle_compras->idProducto);
+                if ($producto) {
                     $producto->precio_compra = $detalle_compras->precio;
-                    $producto->stock = $producto->stock + $detalle_compras->cantidad;
+                    $producto->precio = $detalle_compras->precio_venta;
+                    $producto->stock += $detalle_compras->cantidad; // Adicionar cantidad al stock
                     $producto->update();
                 }
 
-            }
-            if($compra->total !==$total){
-                $compra->total = $total;
-                $compra->update();
+                $total += $detalle_compras->subtotal; // Acumula el total
             }
 
-            LogHelper::guardarLog('Registro de Compra','Se ha realizado una compra');
+            $compra->total = $total; // Actualiza el total final
+            $compra->save(); // Guarda la compra nuevamente
 
+            LogHelper::guardarLog('Registro de Compra', 'Se ha realizado una compra');
             DB::commit();
             toastr()->success(__('Grabación exitosa...'));
-        }catch(\Exception $e){
-            DB::rollback(); // en caso de error anulo transaccion
+        } catch (\Exception $e) {
+            DB::rollback(); // En caso de error, anular transacción
             toastr()->error(__('La grabación NO ha sido exitosa'));
         }
         return Redirect::to('compras');
     }
+
+
     public function show($id){
         $compra=Compra::findOrFail($id);
         $comprobantes=Comprobante::where('estado',true)->get();

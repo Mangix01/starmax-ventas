@@ -51,7 +51,7 @@ class ProductosControlador extends Controller
         return view('productos.create',compact('categorias',));
     }
     public function store (ProductosFormRequest $request){
-        // try{
+        try{
             $producto=new Producto;
             $producto->idCategoria = $request->get('idCategoria');
             $producto->codigo = $request->get('codigo');
@@ -71,10 +71,10 @@ class ProductosControlador extends Controller
             LogHelper::guardarLog('Crear Producto','Se ha creado un nuevo Producto');
 
             toastr()->success(__('Grabación exitosa...'));
-        // }catch(\Exception $e){
-        //     //DB::rollback(); // en caso de error anulo transaccion
-        //     toastr()->error(__('La grabación NO ha sido exitosa'));
-        // }
+        }catch(\Exception $e){
+            //DB::rollback(); // en caso de error anulo transaccion
+            toastr()->error(__('La grabación NO ha sido exitosa'));
+        }
         return Redirect::back();
     }
     public function show($id){
@@ -88,7 +88,7 @@ class ProductosControlador extends Controller
         return view('productos.edit',compact('producto','categorias',));
     }
     public function update(ProductosFormRequest $request,$id){
-        try{
+        // try{
             $producto=Producto::findOrFail($id);
     		$producto->idCategoria = $request->get('idCategoria');
             $producto->codigo = $request->get('codigo');
@@ -108,10 +108,10 @@ class ProductosControlador extends Controller
             LogHelper::guardarLog('Modificación Producto','Se ha modificado un Producto');
 
             toastr()->success(__('Actualización exitosa...'));
-        }catch(\Exception $e){
-            //DB::rollback(); // en caso de error anulo transaccion
-            toastr()->error(__('La actualización NO ha sido exitosa'));
-        }  
+        // }catch(\Exception $e){
+        //     //DB::rollback(); // en caso de error anulo transaccion
+        //     toastr()->error(__('La actualización NO ha sido exitosa'));
+        // }  
         return Redirect::to('productos');
     }
     public function destroy($id){
